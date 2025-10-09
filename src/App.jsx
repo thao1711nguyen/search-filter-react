@@ -1,24 +1,37 @@
-import { useState } from 'react';
+import Product from './components/Product';
+import { useEffect, useState } from 'react';
 
 
 
 export default function App() {
+  const baseUrl = 'https://dummyjson.com/'
+  let products = []
   const [searchTerm, setSearchTerm] = useState('');
-  const users = [
-    { id: 1, name: 'Alice' },
-    { id: 2, name: 'Bob' },
-    { id: 3, name: 'Charlie' }, 
-    { id: 4, name: 'John Doe' }, 
-    { id: 5, name: 'Smith' }, 
-    { id: 6, name: 'Liz' }, 
-    { id: 7, name: 'Mia' }, 
-  ]
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`${baseUrl}products`);
+        if(response.ok) {
+          const jsonData = await response.json();
+          products = jsonData.products
+          setFilteredProducts(jsonData.products)
+        }
+      } catch(error){
+        console.log(error)
+      }
+    } 
+    fetchProducts()
+  }, [])
   function handleSearch(event) {
     setSearchTerm(event.target.value); 
     const searchTerm = event.target.value.toLowerCase();
-    const searchUsers = users.filter(user => user.name.toLowerCase().includes(searchTerm));
-    setFilteredUsers(searchUsers);
+    const searchProducts = products.filter((product) => {
+      product.title.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm)
+    })
+    setFilteredProducts(searchProducts);
   }
 
   return (
@@ -28,7 +41,13 @@ export default function App() {
         onChange={handleSearch}
       />
       <ul>
-        {filteredUsers.map(user => <li key={user.id}>{user.name}</li>)}
+        {filteredProducts.map((product) => {
+          return(
+            <li key={product.id}>
+              <Product product={product} />
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
