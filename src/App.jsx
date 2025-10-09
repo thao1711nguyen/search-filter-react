@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 
 export default function App() {
   const baseUrl = 'https://dummyjson.com/'
-  let products = []
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState(products);
   useEffect(() => {
     async function fetchProducts() {
@@ -14,8 +14,8 @@ export default function App() {
         const response = await fetch(`${baseUrl}products`);
         if(response.ok) {
           const jsonData = await response.json();
-          products = jsonData.products
           setFilteredProducts(jsonData.products)
+          setProducts(jsonData.products)
         }
       } catch(error){
         console.log(error)
@@ -27,9 +27,9 @@ export default function App() {
     setSearchTerm(event.target.value); 
     const searchTerm = event.target.value.toLowerCase();
     const searchProducts = products.filter((product) => {
-      product.title.toLowerCase().includes(searchTerm) ||
+      return (product.title.toLowerCase().includes(searchTerm) ||
         product.description.toLowerCase().includes(searchTerm) ||
-        product.category.toLowerCase().includes(searchTerm)
+        product.category.toLowerCase().includes(searchTerm))
     })
     setFilteredProducts(searchProducts);
   }
